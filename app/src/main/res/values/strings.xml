@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Mobile Player</string>
+    <string name="splash_text">App Starting...</string>
+    <string name="wel_word">I am main activity</string>
+</resources>

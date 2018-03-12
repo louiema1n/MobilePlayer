@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">手机播放器</string>
+    <string name="splash_text">应用程序启动中</string>
+</resources>
