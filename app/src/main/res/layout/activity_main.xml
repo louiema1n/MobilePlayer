@@ -3,13 +3,39 @@
               xmlns:tools="http://schemas.android.com/tools"
               tools:context=".acitivty.MainActivity"
               android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
-    <TextView android:layout_width="wrap_content"
-              android:id="@+id/tv_main"
-              android:text="@string/wel_word"
-              android:textColor="@color/colorAccent"
-              android:textSize="40sp"
-              android:layout_height="wrap_content"/>
+    <!-- 标题栏 -->
+
+    <!-- 中间部分 -->
+    <FrameLayout android:layout_width="wrap_content"
+                 android:layout_weight="1"
+                 android:layout_height="wrap_content"></FrameLayout>
+
+    <!-- 底部ActionBar -->
+    <RadioGroup android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#11000000"
+                android:orientation="horizontal"
+                android:padding="3dp"
+                android:id="@+id/rg_bottom_tag">
+        <RadioButton android:text="@string/bottom_video_text"
+                     android:drawableTop="@drawable/rb_video_drawable_selector"
+                     android:id="@+id/rb_video"
+                     style="@style/BottomText"/>
+        <RadioButton android:text="@string/bottom_music_text"
+                     android:drawableTop="@drawable/rb_music_drawable_selector"
+                     android:id="@+id/rb_music"
+                     style="@style/BottomText"/>
+        <RadioButton android:text="@string/bottom_netVideo_text"
+                     android:drawableTop="@drawable/rb_netvideo_drawable_selector"
+                     android:id="@+id/rb_net_video"
+                     style="@style/BottomText"/>
+        <RadioButton android:text="@string/bottom_netMusic_text"
+                     android:drawableTop="@drawable/rb_netmusic_drawable_selector"
+                     android:id="@+id/rb_net_music"
+                     style="@style/BottomText"/>
+    </RadioGroup>
 
 </LinearLayout>

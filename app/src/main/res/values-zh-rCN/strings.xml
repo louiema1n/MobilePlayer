@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">手机播放器</string>
     <string name="splash_text">应用程序启动中</string>
+    <string name="bottom_video_text">视频</string>
+    <string name="bottom_music_text">音乐</string>
+    <string name="bottom_netVideo_text">在线视频</string>
+    <string name="bottom_netMusic_text">在线音乐</string>
 </resources>

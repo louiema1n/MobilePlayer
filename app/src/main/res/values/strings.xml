@@ -2,4 +2,8 @@
     <string name="app_name">Mobile Player</string>
     <string name="splash_text">App Starting...</string>
     <string name="wel_word">I am main activity</string>
+    <string name="bottom_video_text">video</string>
+    <string name="bottom_music_text">Music</string>
+    <string name="bottom_netVideo_text">NetVideo</string>
+    <string name="bottom_netMusic_text">NetMusic</string>
 </resources>
