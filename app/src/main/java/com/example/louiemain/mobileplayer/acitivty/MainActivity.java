@@ -1,11 +1,12 @@
 package com.example.louiemain.mobileplayer.acitivty;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.*;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -57,6 +58,9 @@ public class MainActivity extends FragmentActivity {
 
         // 默认选中
         rg_bottom_tag.check(R.id.rb_video);
+
+        // 动态获取权限
+        grantExternalRW();
     }
 
     /**
@@ -146,4 +150,21 @@ public class MainActivity extends FragmentActivity {
         return basePager;
     }
 
+    /**
+     * @description 动态获取外部存储权限
+     * Android 6.0以上权限问题
+     * @author louiemain
+     * @date Created on 2018/3/13 23:48
+     * @param
+     * @return void
+     */
+    public void grantExternalRW() {
+        // 是否有被动态授权
+        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // 没有，动态申请权限
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+            }, 1);
+        }
+    }
 }

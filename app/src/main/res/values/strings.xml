@@ -5,4 +5,6 @@
     <string name="bottom_music_text">Music</string>
     <string name="bottom_netVideo_text">NetVideo</string>
     <string name="bottom_netMusic_text">NetMusic</string>
+    <string name="search_word">Search Online</string>
+    <string name="no_found_video">No more video</string>
 </resources>

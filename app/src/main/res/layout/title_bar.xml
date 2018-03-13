@@ -1,26 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="horizontal"
-              android:layout_width="match_parent"
-              android:layout_height="55dp"
-              android:background="#ff3097fd">
+<com.example.louiemain.mobileplayer.view.TopBar
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="horizontal"
+        android:id="@+id/top_bar"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:background="#ff3097fd">
 
+    <!-- logo -->
     <ImageView
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_gravity="center"
-            android:layout_marginLeft="8dp"
+            android:layout_marginLeft="5dp"
             android:src="@drawable/splash_icon"/>
 
+    <!-- 搜索框 -->
     <TextView
             android:layout_marginLeft="5dp"
+            android:id="@+id/top_search"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:textSize="16dp"
             android:drawablePadding="3dp"
+            android:clickable="true"
             android:drawableLeft="@drawable/tv_search_drawable_selector"
-            android:text="Search Online"/>
+            android:text="@string/search_word"
+            android:textColor="@drawable/tv_search_text_color_selector"
+            android:background="@drawable/tv_search_bg_selector"/>
+    <!-- 游戏 -->
+    <RelativeLayout
+            android:layout_marginLeft="5dp"
+            android:id="@+id/top_game"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center">
 
-</LinearLayout>
+        <TextView
+                android:id="@+id/tv_game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableLeft="@drawable/ic_game"/>
+
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignRight="@+id/tv_game"
+                android:background="@drawable/dot_shape"/>
+    </RelativeLayout>
+
+    <!-- 历史 -->
+    <ImageView
+            android:layout_gravity="center"
+            android:id="@+id/top_history"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_history"/>
+
+</com.example.louiemain.mobileplayer.view.TopBar>

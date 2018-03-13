@@ -34,7 +34,7 @@ public abstract class BasePager {
     public abstract View initView();
 
     /** 
-     * @Description: 初始化数据-联网获取或者数据绑定
+     * @Description: 初始化数据-联网获取或者数据绑定时实现该方法
      * @Author: louiemain 
      * @Date: 2018-03-13 12:42 
      * @param  

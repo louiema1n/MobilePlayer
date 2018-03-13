@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 矩形 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <!-- 角 -->
+    <corners android:radius="18dp"/>
+    <!-- 背景颜色 -->
+    <solid android:color="#cc3679ca"/>
+    <padding android:top="5dp"
+             android:bottom="5dp"
+             android:left="8dp"
+             android:right="8dp"/>
+</shape>
