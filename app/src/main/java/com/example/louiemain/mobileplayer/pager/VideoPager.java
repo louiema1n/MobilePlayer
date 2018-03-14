@@ -2,16 +2,23 @@ package com.example.louiemain.mobileplayer.pager;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.text.format.Formatter;
 import android.view.View;
-import android.widget.ListView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.ViewGroup;
+import android.widget.*;
 import com.example.louiemain.mobileplayer.R;
+import com.example.louiemain.mobileplayer.acitivty.SystemVideoPlayer;
+import com.example.louiemain.mobileplayer.adapter.MyVideoItemAdapter;
 import com.example.louiemain.mobileplayer.base.BasePager;
 import com.example.louiemain.mobileplayer.domain.MediaItem;
+import com.example.louiemain.mobileplayer.utils.Time;
 
 import java.util.ArrayList;
 
@@ -34,6 +41,25 @@ public class VideoPager extends BasePager {
         super(context);
     }
 
+    // 处理子线程发送的消息
+    private Handler handler = new Handler(){
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            if (mediaItemList != null && mediaItemList.size() > 0) {
+                // 有数据, 显示数据，隐藏提示文本
+                lv_item.setAdapter(new MyVideoItemAdapter(context, mediaItemList));
+            } else {
+                // 无数据，显示提示文本
+                tv_no_more_media.setVisibility(View.VISIBLE);
+            }
+            // 隐藏loading
+            pb_loading.setVisibility(View.GONE);
+        }
+    };
+
     @Override
     public View initView() {
         // 初始化视图
@@ -43,8 +69,13 @@ public class VideoPager extends BasePager {
         pb_loading = (ProgressBar) view.findViewById(R.id.pb_loading);
         tv_no_more_media = (TextView) view.findViewById(R.id.tv_no_more_media);
 
+        // 设置item的点击监听
+        lv_item.setOnItemClickListener(new MyItemOnClickListener());
+
         return view;
     }
+
+
 
     @Override
     public void initData() {
@@ -64,11 +95,15 @@ public class VideoPager extends BasePager {
      * @date Created on 2018/3/13 23:12
      */
     private void getMediaFromLocal() {
-        // 创建子线程
+        // 创建子线程--(Thread) run() -> {}
         new Thread() {
             @Override
             public void run() {
                 super.run();
+
+                // 休眠
+                SystemClock.sleep(1000);
+
                 // 从当前上下文获取内容解析者
                 ContentResolver resolver = context.getContentResolver();
                 Uri uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;  // 外置存储设备Uri
@@ -87,6 +122,9 @@ public class VideoPager extends BasePager {
                 if (cursor != null) {
                     initMediaItem(cursor);
                 }
+
+                // 发送空消息
+                handler.sendEmptyMessage(0);
             }
         }.start();
     }
@@ -115,4 +153,27 @@ public class VideoPager extends BasePager {
         cursor.close();
     }
 
+    /**
+     * @Description: 自定义点击item监听器
+     * @Author: louiemain
+     * @Date: 2018-03-14 11:14
+     * @param
+     * @return:
+     */
+    private class MyItemOnClickListener implements AdapterView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            // 获取当前点击的mediaItem
+            MediaItem mediaItem = mediaItemList.get(position);
+            // 创建隐式intent-调起系统视频播放器
+//            Intent intent = new Intent();
+//            intent.setDataAndType(Uri.parse(mediaItem.getData()), "video/*");
+
+            // 自定义系统播放器
+            Intent intent = new Intent(context, SystemVideoPlayer.class);
+            intent.setDataAndType(Uri.parse(mediaItem.getData()), "video/*");
+
+            context.startActivity(intent);
+        }
+    }
 }

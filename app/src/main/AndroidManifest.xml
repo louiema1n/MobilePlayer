@@ -19,5 +19,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".acitivty.MainActivity"/>
+        <activity android:name=".acitivty.SystemVideoPlayer"/>
     </application>
 </manifest>
