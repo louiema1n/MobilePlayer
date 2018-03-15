@@ -11,6 +11,8 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:background="#cc000000"
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
@@ -39,19 +41,107 @@
                 android:gravity="center_vertical">
 
             <Button
+                    android:id="@+id/btn_volume"
                     android:layout_width="30dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ic_volume"/>
+                    android:background="@drawable/ic_volume"
+                    android:layout_marginLeft="5dp"/>
+
             <SeekBar
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:progress="20"/>
+
             <Button
+                    android:id="@+id/btn_switch_player"
                     android:layout_width="30dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ic_switch_player"/>
+                    android:background="@drawable/ic_switch_player"
+                    android:layout_marginRight="5dp"/>
         </LinearLayout>
+
+
+    </LinearLayout>
+
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical">
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:background="#99000000"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+            <TextView
+                    android:text="00:00"
+                    android:textColor="@android:color/white"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="5dp"/>
+
+            <SeekBar
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:progress="20"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginLeft="5dp"/>
+
+            <TextView
+                    android:text="20:00"
+                    android:textColor="@android:color/white"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginRight="5dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#cc000000"
+                android:orientation="horizontal"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:gravity="center_vertical">
+
+            <ImageButton
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:src="@drawable/btn_return_selector"
+                    android:background="#00000000"/>
+            <ImageButton
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="#00000000"
+                    android:src="@drawable/btn_pre_selector"/>
+            <ImageButton
+                    android:id="@+id/ib_start_pause"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="#00000000"
+                    android:src="@drawable/btn_pause_selector"/>
+            <ImageButton
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="#00000000"
+                    android:src="@drawable/btn_next_selector"/>
+            <ImageButton
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="#00000000"
+                    android:src="@drawable/btn_switch_sreen_selector"/>
+        </LinearLayout>
+
     </LinearLayout>
 
 </RelativeLayout>
