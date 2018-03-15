@@ -78,6 +78,7 @@
                 android:gravity="center_vertical">
 
             <TextView
+                    android:id="@+id/tv_current_time"
                     android:text="00:00"
                     android:textColor="@android:color/white"
                     android:layout_height="wrap_content"
@@ -85,6 +86,7 @@
                     android:layout_marginLeft="5dp"/>
 
             <SeekBar
+                    android:id="@+id/sb_video"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -93,7 +95,8 @@
                     android:layout_marginLeft="5dp"/>
 
             <TextView
-                    android:text="20:00"
+                    android:id="@+id/tv_duration"
+                    android:text="00:00"
                     android:textColor="@android:color/white"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
@@ -104,18 +107,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="#cc000000"
-                android:orientation="horizontal"
-                android:paddingTop="10dp"
                 android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:orientation="horizontal"
                 android:gravity="center_vertical">
 
             <ImageButton
+                    android:id="@+id/ib_return"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:src="@drawable/btn_return_selector"
                     android:background="#00000000"/>
             <ImageButton
+                    android:id="@+id/ib_pre"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
@@ -129,17 +134,19 @@
                     android:background="#00000000"
                     android:src="@drawable/btn_pause_selector"/>
             <ImageButton
+                    android:id="@+id/ib_next"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:background="#00000000"
                     android:src="@drawable/btn_next_selector"/>
             <ImageButton
+                    android:id="@+id/ib_switch_screen"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
                     android:background="#00000000"
-                    android:src="@drawable/btn_switch_sreen_selector"/>
+                    android:src="@drawable/btn_switch_screen_selector"/>
         </LinearLayout>
 
     </LinearLayout>
