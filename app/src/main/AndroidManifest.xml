@@ -22,6 +22,7 @@
                   android:configChanges="keyboardHidden|screenSize|orientation"/>
         <!-- 解决横竖屏切换导致生命周期销毁后重建bug -->
         <activity android:name=".acitivty.SystemVideoPlayer"
+                  android:screenOrientation="landscape"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen"
                   android:configChanges="keyboardHidden|screenSize|orientation"
                 />

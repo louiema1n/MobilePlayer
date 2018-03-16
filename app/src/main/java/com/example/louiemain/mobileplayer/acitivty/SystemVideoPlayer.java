@@ -11,6 +11,9 @@ import android.widget.*;
 import com.example.louiemain.mobileplayer.R;
 import com.example.louiemain.mobileplayer.utils.Time;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * @Program: MobilePlayer
  * @Type: Class
@@ -32,11 +35,12 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     private TextView tv_current_time;
     private SeekBar sb_video;
     private TextView tv_duration;
+    private TextView tv_system_time;
 
     private Time time;
 
     // 消息处理
-    private Handler handler = new Handler(){
+    private Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
@@ -49,12 +53,27 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                     // 更新当前播放时间文本
                     tv_current_time.setText(time.millisecond2Time(currentPosition));
 
+                    // 每秒更新系统时间
+                    tv_system_time.setText(getSystemTime());
+
                     removeMessages(PROGRESS);
                     // 延迟1秒发送消息自己处理
                     sendEmptyMessageDelayed(PROGRESS, 1000);
             }
         }
     };
+
+    /**
+     * @Description: 获取当前系统时间
+     * @Author: louiemain
+     * @Date: 2018-03-16 14:30
+     * @param
+     * @return: java.lang.String
+     */
+    private String getSystemTime() {
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        return sdf.format(new Date());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,6 +199,8 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
 
             }
         });
+        tv_system_time = (TextView) findViewById(R.id.tv_system_time);
+        tv_system_time.setOnClickListener(this);
     }
 
     @Override
