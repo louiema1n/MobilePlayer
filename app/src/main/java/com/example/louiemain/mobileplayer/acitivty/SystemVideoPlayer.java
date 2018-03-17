@@ -9,11 +9,13 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.DisplayMetrics;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import com.example.louiemain.mobileplayer.R;
 import com.example.louiemain.mobileplayer.domain.MediaItem;
+import com.example.louiemain.mobileplayer.utils.NetWork;
 import com.example.louiemain.mobileplayer.utils.Time;
 import com.example.louiemain.mobileplayer.view.VideoViewSelf;
 
@@ -68,6 +70,18 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                     // 每秒更新系统时间
                     tv_system_time.setText(getSystemTime());
 
+                    // 更新网络资源的缓冲进度
+                    if (isNetworkResurce) {
+                        // 获取缓冲百分比
+                        int bufferPercentage = vv_video_player.getBufferPercentage();
+                        // 获取进度条的最大数
+                        int max = sb_video.getMax();
+                        // 计算缓冲进度
+                        int bufferProgress = bufferPercentage * max / 100;
+                        // 设置进度条
+                        sb_video.setSecondaryProgress(bufferProgress);
+                    }
+
                     removeMessages(PROGRESS);
                     // 延迟1秒发送消息自己处理
                     sendEmptyMessageDelayed(PROGRESS, 1000);
@@ -106,7 +120,12 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
      * 是否静音
      */
     private boolean isMuted;
-
+    // 实例化network工具类
+    private NetWork netWork;
+    /**
+     * 是否为网络资源
+     */
+    private boolean isNetworkResurce;
 
     /**
      * @param
@@ -141,6 +160,13 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     // 当前音量
     private int volume;
 
+    // 手指滑动起始位置
+    private float startY;
+    // 滑动方向的总距离
+    private int touchRang;
+    // 手指触摸时的音量
+    private int startVolume;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,11 +194,15 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     private void setData() {
         if (mediaItems != null && mediaItems.size() > 0) {
             MediaItem mediaItem = mediaItems.get(position);
+            // 判断是否为网络资源
+            isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
             // 设置当前播放器的path
             vv_video_player.setVideoPath(mediaItem.getData());
             // 设置当前播放视频的名称
             tv_video_display_name.setText(mediaItem.getDisplayName());
         } else if (uri != null) {
+            // 判断是否为网络资源
+            isNetworkResurce = netWork.isNetworkResource(uri.toString());
             // 设置播放地址
             vv_video_player.setVideoURI(uri);
             // 设置当前播放视频的名称
@@ -209,6 +239,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
      */
     private void initView() {
         time = new Time();
+        netWork = new NetWork();
 
         vv_video_player = (VideoViewSelf) findViewById(R.id.vv_video_player);
 
@@ -427,11 +458,11 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     }
 
     /**
+     * @param progress
+     * @return void
      * @description 改变音量
      * @author louiemain
      * @date Created on 2018/3/17 19:03
-     * @param progress
-     * @return void
      */
     private void changeVolumeHandle(int progress) {
         if (isMuted) {
@@ -488,7 +519,42 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     public boolean onTouchEvent(MotionEvent event) {
         // 将事件传递给手势识别器
         gestureDetector.onTouchEvent(event);
+
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:   // 手指按下
+                // 记录手指起始的Y方向的位置
+                startY = event.getY();
+                // 记录滑动方向的总距离
+                touchRang = Math.min(screenWidth, screenHeight);
+                // 记录手机起始时的音量
+                startVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                // 移除控制面板隐藏消息
+                handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+                break;
+            case MotionEvent.ACTION_MOVE:   // 手指移动
+                // 记录手指当前Y方向的位置
+                float endY = event.getY();
+                // 计算滑动的距离
+                float distance = startY - endY;
+                // 计算音量的偏移量
+                // 滑动距离:总距离 = 偏移的音量:总音量
+                int offset = (int) ((distance / touchRang) * maxVolume);
+                // 计算偏移后的音量
+                int progress = Math.min(Math.max(startVolume + offset, 0), maxVolume);
+                // 改变音量
+                if (offset != 0) {
+                    isMuted = true;
+                    changeVolumeHandle(progress);
+                }
+
+                break;
+            case MotionEvent.ACTION_UP:     // 手指离开
+                // 延迟发送隐藏控制面板的消息
+                handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 4000);
+                break;
+        }
         return super.onTouchEvent(event);
+
     }
 
     @Override
@@ -535,10 +601,10 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             int width = screenWidth;    // 调整后的视频宽度
             int height = screenHeight;  // 调整后的视频高度
             // for compatibility, we adjust size based on aspect ratio
-            if ( videoWidth * screenHeight  < screenWidth * videoHeight ) {
+            if (videoWidth * screenHeight < screenWidth * videoHeight) {
                 //Log.i("@@@", "image too wide, correcting");
                 width = screenHeight * videoWidth / videoHeight;
-            } else if ( videoWidth * screenHeight  > screenWidth * videoHeight ) {
+            } else if (videoWidth * screenHeight > screenWidth * videoHeight) {
                 //Log.i("@@@", "image too tall, correcting");
                 height = screenWidth * videoHeight / videoWidth;
             }
@@ -592,6 +658,8 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                 Toast.makeText(this, "后面已经没有了", Toast.LENGTH_SHORT).show();
             } else {
                 MediaItem mediaItem = mediaItems.get(position);
+                // 判断是否为网络资源
+                isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
                 vv_video_player.setVideoPath(mediaItem.getData());
                 tv_video_display_name.setText(mediaItem.getDisplayName());
             }
@@ -615,11 +683,46 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                 Toast.makeText(this, "前面已经没有了", Toast.LENGTH_SHORT).show();
             } else {
                 MediaItem mediaItem = mediaItems.get(position);
+                // 判断是否为网络资源
+                isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
                 vv_video_player.setVideoPath(mediaItem.getData());
                 tv_video_display_name.setText(mediaItem.getDisplayName());
             }
         } else if (uri != null) {
             Toast.makeText(this, "前面已经没有了", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * @param keyCode
+     * @param event
+     * @return boolean
+     * @description 监听物理按键
+     * @author louiemain
+     * @date Created on 2018/3/17 22:17
+     */
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN) {
+            // 音量减小
+            volume--;
+            isMuted = true;
+            changeVolumeHandle(volume);
+            // 隐藏控制面板
+            isShowMediaController = true;
+            showHideMediaControllerHandle();
+            // 阻止父类继续响应
+            return true;
+        } else if (keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
+            // 音量加大
+            volume++;
+            isMuted = true;
+            changeVolumeHandle(volume);
+            // 隐藏控制面板
+            isShowMediaController = true;
+            showHideMediaControllerHandle();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

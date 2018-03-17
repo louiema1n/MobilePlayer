@@ -25,6 +25,27 @@
                   android:screenOrientation="landscape"
                   android:theme="@android:style/Theme.Material.Light.NoActionBar.Fullscreen"
                   android:configChanges="keyboardHidden|screenSize|orientation"
-                />
+                >
+            <!-- 当满足以下条件时被系统调起 -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="rtsp"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="video/*"/>
+                <data android:mimeType="application/sdp"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http"/>
+                <data android:mimeType="video/*"/>
+            </intent-filter>
+        </activity>
     </application>
 </manifest>
