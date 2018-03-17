@@ -15,4 +15,9 @@
             layout="@layout/media_controller_self"
             android:id="@+id/media_controller"/>
 
+    <include
+            layout="@layout/buffer_loading"
+            android:id="@+id/ll_buffer_loading"
+            android:visibility="gone"/>
+
 </RelativeLayout>

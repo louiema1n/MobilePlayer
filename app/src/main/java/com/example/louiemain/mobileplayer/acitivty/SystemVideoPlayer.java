@@ -71,7 +71,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                     tv_system_time.setText(getSystemTime());
 
                     // 更新网络资源的缓冲进度
-                    if (isNetworkResurce) {
+                    if (isNetworkResources) {
                         // 获取缓冲百分比
                         int bufferPercentage = vv_video_player.getBufferPercentage();
                         // 获取进度条的最大数
@@ -125,7 +125,10 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     /**
      * 是否为网络资源
      */
-    private boolean isNetworkResurce;
+    private boolean isNetworkResources;
+    private TextView buffer_network;
+
+    private LinearLayout ll_buffer_loading;
 
     /**
      * @param
@@ -195,14 +198,14 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         if (mediaItems != null && mediaItems.size() > 0) {
             MediaItem mediaItem = mediaItems.get(position);
             // 判断是否为网络资源
-            isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
+            isNetworkResources = netWork.isNetworkResource(mediaItem.getData());
             // 设置当前播放器的path
             vv_video_player.setVideoPath(mediaItem.getData());
             // 设置当前播放视频的名称
             tv_video_display_name.setText(mediaItem.getDisplayName());
         } else if (uri != null) {
             // 判断是否为网络资源
-            isNetworkResurce = netWork.isNetworkResource(uri.toString());
+            isNetworkResources = netWork.isNetworkResource(uri.toString());
             // 设置播放地址
             vv_video_player.setVideoURI(uri);
             // 设置当前播放视频的名称
@@ -266,6 +269,9 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         tv_duration.setOnClickListener(this);
         media_controller = (RelativeLayout) findViewById(R.id.media_controller);
         sb_volume = (SeekBar) findViewById(R.id.sb_volume);
+
+        buffer_network = (TextView) findViewById(R.id.buffer_network);
+        ll_buffer_loading = (LinearLayout) findViewById(R.id.ll_buffer_loading);
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             /**
@@ -455,6 +461,25 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         tv_video_display_name = (TextView) findViewById(R.id.tv_video_display_name);
         tv_video_display_name.setOnClickListener(this);
 
+        // 设置视频播放卡顿的监听-使用系统api
+        vv_video_player.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                switch (what) {
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_START:
+                        // 开始卡顿
+                        ll_buffer_loading.setVisibility(View.VISIBLE);
+                        break;
+                    case MediaPlayer.MEDIA_INFO_BUFFERING_END:
+                        // 卡顿结束
+                        ll_buffer_loading.setVisibility(View.GONE);
+                        break;
+                }
+                return false;
+            }
+        });
+
+        buffer_network.setOnClickListener(this);
     }
 
     /**
@@ -659,7 +684,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             } else {
                 MediaItem mediaItem = mediaItems.get(position);
                 // 判断是否为网络资源
-                isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
+                isNetworkResources = netWork.isNetworkResource(mediaItem.getData());
                 vv_video_player.setVideoPath(mediaItem.getData());
                 tv_video_display_name.setText(mediaItem.getDisplayName());
             }
@@ -684,7 +709,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             } else {
                 MediaItem mediaItem = mediaItems.get(position);
                 // 判断是否为网络资源
-                isNetworkResurce = netWork.isNetworkResource(mediaItem.getData());
+                isNetworkResources = netWork.isNetworkResource(mediaItem.getData());
                 vv_video_player.setVideoPath(mediaItem.getData());
                 tv_video_display_name.setText(mediaItem.getDisplayName());
             }
