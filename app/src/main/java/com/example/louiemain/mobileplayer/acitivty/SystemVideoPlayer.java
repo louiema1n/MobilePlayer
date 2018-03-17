@@ -102,6 +102,10 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
      * 是否全屏
      */
     private boolean isFullScreen;
+    /**
+     * 是否静音
+     */
+    private boolean isMuted;
 
 
     /**
@@ -394,12 +398,13 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                 if (fromUser) {
-                    // 设置当前系统音量(flags:0-不调起系统音量条；1-调起)
-                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
-                    // 设置进度条的变化
-                    sb_volume.setProgress(progress);
-                    // 赋值给当前音量
-                    volume = progress;
+                    if (progress > 0) {
+                        isMuted = true;
+                    } else {
+                        isMuted = false;
+                    }
+
+                    changeVolumeHandle(progress);
                 }
             }
 
@@ -418,6 +423,34 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         tv_system_time.setOnClickListener(this);
         tv_video_display_name = (TextView) findViewById(R.id.tv_video_display_name);
         tv_video_display_name.setOnClickListener(this);
+
+    }
+
+    /**
+     * @description 改变音量
+     * @author louiemain
+     * @date Created on 2018/3/17 19:03
+     * @param progress
+     * @return void
+     */
+    private void changeVolumeHandle(int progress) {
+        if (isMuted) {
+            // 是静音，改为正常音量
+            // 设置当前系统音量(flags:0-不调起系统音量条；1-调起)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+            // 设置进度条的变化
+            sb_volume.setProgress(progress);
+            // 赋值给当前音量
+            volume = progress;
+            isMuted = false;
+        } else {
+            // 正常音量，改为静音
+            // 设置当前系统音量(flags:0-不调起系统音量条；1-调起)
+            audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, 0, 0);
+            // 设置进度条的变化
+            sb_volume.setProgress(0);
+            isMuted = true;
+        }
 
     }
 
@@ -462,7 +495,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_volume:
-
+                changeVolumeHandle(volume);
                 break;
             case R.id.btn_switch_player:
 

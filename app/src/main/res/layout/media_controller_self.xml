@@ -46,7 +46,7 @@
                     android:id="@+id/btn_volume"
                     android:layout_width="30dp"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/ic_volume"
+                    android:background="@drawable/btn_muted_change_selector"
                     android:layout_marginLeft="5dp"/>
 
             <SeekBar
