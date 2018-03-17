@@ -5,12 +5,14 @@
                 android:gravity="center"
                 android:background="#000000">
 
-    <VideoView
+    <com.example.louiemain.mobileplayer.view.VideoViewSelf
             android:id="@+id/vv_video_player"
             android:layout_centerInParent="true"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <include layout="@layout/media_controller_self"/>
+    <include
+            layout="@layout/media_controller_self"
+            android:id="@+id/media_controller"/>
 
 </RelativeLayout>

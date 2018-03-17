@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -164,14 +165,24 @@ public class VideoPager extends BasePager {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             // 获取当前点击的mediaItem
-            MediaItem mediaItem = mediaItemList.get(position);
+//            MediaItem mediaItem = mediaItemList.get(position);
             // 创建隐式intent-调起系统视频播放器
 //            Intent intent = new Intent();
 //            intent.setDataAndType(Uri.parse(mediaItem.getData()), "video/*");
 
             // 自定义系统播放器
+//            Intent intent = new Intent(context, SystemVideoPlayer.class);
+//            intent.setDataAndType(Uri.parse(mediaItem.getData()), "video/*");
+
+            // 给自定义播放器传递视频列表
             Intent intent = new Intent(context, SystemVideoPlayer.class);
-            intent.setDataAndType(Uri.parse(mediaItem.getData()), "video/*");
+
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("videoList", mediaItemList);
+            intent.putExtras(bundle);
+
+            // 传递当前位置
+            intent.putExtra("position", position);
 
             context.startActivity(intent);
         }

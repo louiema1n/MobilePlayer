@@ -1,10 +1,12 @@
 package com.example.louiemain.mobileplayer.domain;
 
+import java.io.Serializable;
+
 /**
  * @description 媒体Item
  * @author&date Created by louiemain on 2018/3/13 23:22
  */
-public class MediaItem {
+public class MediaItem implements Serializable {
     private String displayName;
     private long duration;
     private long size;

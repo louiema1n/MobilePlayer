@@ -1,17 +1,24 @@
 package com.example.louiemain.mobileplayer.acitivty;
 
 import android.app.Activity;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 import com.example.louiemain.mobileplayer.R;
+import com.example.louiemain.mobileplayer.domain.MediaItem;
 import com.example.louiemain.mobileplayer.utils.Time;
+import com.example.louiemain.mobileplayer.view.VideoViewSelf;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -23,8 +30,11 @@ import java.util.Date;
  **/
 public class SystemVideoPlayer extends Activity implements View.OnClickListener {
 
+    // 播放进度
     private static final int PROGRESS = 1;
-    private VideoView vv_video_player;
+    // 隐藏控制面板
+    private static final int HIDE_MEDIA_CONTROLLER = 2;
+    private VideoViewSelf vv_video_player;
     private Button btn_volume;
     private Button btn_switch_player;
     private ImageButton ib_return;
@@ -36,6 +46,8 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     private SeekBar sb_video;
     private TextView tv_duration;
     private TextView tv_system_time;
+    private RelativeLayout media_controller;
+    private SeekBar sb_volume;
 
     private Time time;
 
@@ -59,21 +71,72 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                     removeMessages(PROGRESS);
                     // 延迟1秒发送消息自己处理
                     sendEmptyMessageDelayed(PROGRESS, 1000);
+                    break;
+
+                case HIDE_MEDIA_CONTROLLER:
+                    isShowMediaController = false;
+                    showHideMediaControllerHandle();
+                    break;
+
             }
         }
     };
+    private TextView tv_video_display_name;
+    /**
+     * 播放视频列表
+     */
+    private ArrayList<MediaItem> mediaItems;
+    /**
+     * 播放视频位置
+     */
+    private int position;
+    /**
+     * 播放视频的uri
+     */
+    private Uri uri;
+    /**
+     * 是否显示控制面板
+     */
+    private boolean isShowMediaController;
+    /**
+     * 是否全屏
+     */
+    private boolean isFullScreen;
+
 
     /**
+     * @param
      * @Description: 获取当前系统时间
      * @Author: louiemain
      * @Date: 2018-03-16 14:30
-     * @param
      * @return: java.lang.String
      */
     private String getSystemTime() {
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
         return sdf.format(new Date());
     }
+
+    /**
+     * 定义手势识别器
+     */
+    private GestureDetector gestureDetector;
+
+    // 屏幕宽度
+    private int screenWidth = 0;
+    // 屏幕高度
+    private int screenHeight = 0;
+    // 视频宽度
+    private int videoWidth = 0;
+    // 视频高度
+    private int videoHeight = 0;
+
+    // 音频调节
+    AudioManager audioManager;
+    // 最大音量
+    private int maxVolume;
+    // 当前音量
+    private int volume;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,21 +146,67 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         setContentView(R.layout.activity_system_video_player);
         initView();
 
-        time = new Time();
+        // 获取数据
+        getData();
+        // 设置数据
+        setData();
 
-        // 设置播放属性
-        Uri uri = getIntent().getData();
-        if (uri != null) {
-            // 获取播放地址
-            vv_video_player.setVideoURI(uri);
-            // 设置系统控制组件
-            vv_video_player.setMediaController(new MediaController(this));
-        }
 
     }
 
+    /**
+     * @param
+     * @return void
+     * @description 设置数据
+     * @author louiemain
+     * @date Created on 2018/3/17 11:12
+     */
+    private void setData() {
+        if (mediaItems != null && mediaItems.size() > 0) {
+            MediaItem mediaItem = mediaItems.get(position);
+            // 设置当前播放器的path
+            vv_video_player.setVideoPath(mediaItem.getData());
+            // 设置当前播放视频的名称
+            tv_video_display_name.setText(mediaItem.getDisplayName());
+        } else if (uri != null) {
+            // 设置播放地址
+            vv_video_player.setVideoURI(uri);
+            // 设置当前播放视频的名称
+            tv_video_display_name.setText(uri.toString());
+        } else {
+            Toast.makeText(this, "请传递播放视频数据~亲", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 设置数据
+     * @author louiemain
+     * @date Created on 2018/3/17 10:57
+     */
+    private void getData() {
+        // 获取视频列表
+        mediaItems = (ArrayList<MediaItem>) getIntent().getSerializableExtra("videoList");
+        // 获取播放视频位置
+        position = getIntent().getIntExtra("position", 0);
+
+        // 获取播放属性
+        uri = getIntent().getData();
+
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 初始化视图
+     * @author louiemain
+     * @date Created on 2018/3/17 10:57
+     */
     private void initView() {
-        vv_video_player = (VideoView) findViewById(R.id.vv_video_player);
+        time = new Time();
+
+        vv_video_player = (VideoViewSelf) findViewById(R.id.vv_video_player);
 
         btn_volume = (Button) findViewById(R.id.btn_volume);
         btn_switch_player = (Button) findViewById(R.id.btn_switch_player);
@@ -120,6 +229,62 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         sb_video.setOnClickListener(this);
         tv_duration = (TextView) findViewById(R.id.tv_duration);
         tv_duration.setOnClickListener(this);
+        media_controller = (RelativeLayout) findViewById(R.id.media_controller);
+        sb_volume = (SeekBar) findViewById(R.id.sb_volume);
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            /**
+             * 单击
+             * @param e
+             * @return
+             */
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                showHideMediaControllerHandle();
+                return super.onSingleTapConfirmed(e);
+            }
+
+            /**
+             * 单击弹起
+             * @param e
+             * @return
+             */
+//            @Override
+//            public boolean onSingleTapUp(MotionEvent e) {
+//                Toast.makeText(SystemVideoPlayer.this, "单击", Toast.LENGTH_SHORT).show();
+//                return super.onSingleTapUp(e);
+//            }
+
+            /**
+             * 长按
+             * @param e
+             */
+            @Override
+            public void onLongPress(MotionEvent e) {
+                // 播放/暂停视频
+                startPauseVideoHandle();
+                super.onLongPress(e);
+            }
+
+            /**
+             * 双击
+             * @param e
+             * @return
+             */
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                // 切换全屏/默认播放视频
+                switchScreenSizeHandle();
+                return super.onDoubleTap(e);
+            }
+        });
+
+        // 实例化AudioManager
+        audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
+        // 获取最大音量(AudioManager.STREAM_MUSIC-媒体音量)
+        maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+        // 获取当前音量
+        volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
         // 准备好的监听
         vv_video_player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -134,7 +299,27 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                 tv_duration.setText(time.millisecond2Time(duration));
                 // 4.每秒更新当前播放进度
                 handler.sendEmptyMessage(PROGRESS);
+                // 显示控制面板
+                isShowMediaController = true;
+                showHideMediaControllerHandle();
 
+                // 获取视频的宽度、高度
+                videoWidth = mp.getVideoWidth();
+                videoHeight = mp.getVideoHeight();
+                // 获取屏幕的宽度、高度
+                DisplayMetrics metrics = new DisplayMetrics();
+                getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                screenWidth = metrics.widthPixels;
+                screenHeight = metrics.heightPixels;
+
+                // 设置默认播放
+                isFullScreen = true;
+                switchScreenSizeHandle();
+
+                // 设置最大音量
+                sb_volume.setMax(maxVolume);
+                // 设置当前音量
+                sb_volume.setProgress(volume);
             }
         });
 
@@ -151,7 +336,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         vv_video_player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                Toast.makeText(SystemVideoPlayer.this, "播放完成", Toast.LENGTH_SHORT).show();
+                nextVideoHandle();
             }
         });
 
@@ -176,7 +361,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             }
 
             /**
-             * @description 用户手指触碰的回调
+             * @description 用户手指开始触碰的回调
              * @author louiemain
              * @date Created on 2018/3/15 23:29
              * @param seekBar
@@ -184,7 +369,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
              */
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-
+                handler.removeMessages(HIDE_MEDIA_CONTROLLER);
             }
 
             /**
@@ -196,11 +381,81 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
              */
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
-
+                handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 3000);
             }
         });
+        sb_volume.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            /**
+             * 进度条改变
+             * @param seekBar
+             * @param progress
+             * @param fromUser
+             */
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    // 设置当前系统音量(flags:0-不调起系统音量条；1-调起)
+                    audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
+                    // 设置进度条的变化
+                    sb_volume.setProgress(progress);
+                    // 赋值给当前音量
+                    volume = progress;
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 3000);
+            }
+        });
+
         tv_system_time = (TextView) findViewById(R.id.tv_system_time);
         tv_system_time.setOnClickListener(this);
+        tv_video_display_name = (TextView) findViewById(R.id.tv_video_display_name);
+        tv_video_display_name.setOnClickListener(this);
+
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 显示/隐藏视频播放控制面板
+     * @author louiemain
+     * @date Created on 2018/3/17 12:44
+     */
+    private void showHideMediaControllerHandle() {
+        // 移除控制面板隐藏消息
+        handler.removeMessages(HIDE_MEDIA_CONTROLLER);
+        if (isShowMediaController) {
+            // 显示
+            media_controller.setVisibility(View.VISIBLE);
+            isShowMediaController = false;
+            // 发送控制面板隐藏消息-3s后隐藏
+            handler.sendEmptyMessageDelayed(HIDE_MEDIA_CONTROLLER, 3000);
+        } else {
+            // 隐藏
+            media_controller.setVisibility(View.GONE);
+            isShowMediaController = true;
+        }
+    }
+
+    /**
+     * @param event
+     * @return boolean
+     * @description 处理触摸事件
+     * @author louiemain
+     * @date Created on 2018/3/17 12:24
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        // 将事件传递给手势识别器
+        gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 
     @Override
@@ -213,30 +468,125 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
 
                 break;
             case R.id.ib_return:
-
+                finish();
                 break;
             case R.id.ib_pre:
-
+                preVideoHandle();
                 break;
             case R.id.ib_start_pause:
-                if (vv_video_player.isPlaying()) {
-                    // 播放中，设置 暂停
-                    vv_video_player.pause();
-                    // 修改图标为播放
-                    ib_start_pause.setImageDrawable(getResources().getDrawable(R.drawable.btn_play_selector, null));
-                } else {
-                    // 暂停，设置 播放
-                    vv_video_player.start();
-                    // 修改图标为暂停
-                    ib_start_pause.setImageDrawable(getResources().getDrawable(R.drawable.btn_pause_selector, null));
-                }
+                startPauseVideoHandle();
                 break;
             case R.id.ib_next:
-
+                nextVideoHandle();
                 break;
             case R.id.ib_switch_screen:
-
+                switchScreenSizeHandle();
                 break;
+        }
+        // 显示控制面板
+        isShowMediaController = true;
+        showHideMediaControllerHandle();
+    }
+
+    /***
+     * @description 切换视频播放的屏幕大小
+     * @author louiemain
+     * @date Created on 2018/3/17 16:40
+     * @param
+     * @return void
+     */
+    private void switchScreenSizeHandle() {
+        if (isFullScreen) {
+            // 是全屏，切换换成默认(等比例缩放后的视频大小)
+            // 根据视频及屏幕大小按比例缩放视频尺寸
+            int width = screenWidth;    // 调整后的视频宽度
+            int height = screenHeight;  // 调整后的视频高度
+            // for compatibility, we adjust size based on aspect ratio
+            if ( videoWidth * screenHeight  < screenWidth * videoHeight ) {
+                //Log.i("@@@", "image too wide, correcting");
+                width = screenHeight * videoWidth / videoHeight;
+            } else if ( videoWidth * screenHeight  > screenWidth * videoHeight ) {
+                //Log.i("@@@", "image too tall, correcting");
+                height = screenWidth * videoHeight / videoWidth;
+            }
+            vv_video_player.setVideoSize(width, height);
+            // 设置按钮状态
+            ib_switch_screen.setImageDrawable(getResources().getDrawable(R.drawable.btn_full_screen_selector, null));
+            isFullScreen = false;
+        } else {
+            // 是默认，切换成全屏(屏幕大小)
+            vv_video_player.setVideoSize(screenWidth, screenHeight);
+            // 设置按钮状态
+            ib_switch_screen.setImageDrawable(getResources().getDrawable(R.drawable.btn_default_selector, null));
+            isFullScreen = true;
+        }
+    }
+
+
+    /**
+     * @param
+     * @return void
+     * @description 播放/暂停视频切换
+     * @author louiemain
+     * @date Created on 2018/3/17 12:19
+     */
+    private void startPauseVideoHandle() {
+        if (vv_video_player.isPlaying()) {
+            // 播放中，设置 暂停
+            vv_video_player.pause();
+            // 修改图标为播放
+            ib_start_pause.setImageDrawable(getResources().getDrawable(R.drawable.btn_play_selector, null));
+        } else {
+            // 暂停，设置 播放
+            vv_video_player.start();
+            // 修改图标为暂停
+            ib_start_pause.setImageDrawable(getResources().getDrawable(R.drawable.btn_pause_selector, null));
+        }
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 下一个视频
+     * @author louiemain
+     * @date Created on 2018/3/17 11:50
+     */
+    private void nextVideoHandle() {
+        if (mediaItems != null && mediaItems.size() > 0) {
+            position++;
+            if (position > mediaItems.size() - 1) {
+                position = mediaItems.size() - 1;
+                Toast.makeText(this, "后面已经没有了", Toast.LENGTH_SHORT).show();
+            } else {
+                MediaItem mediaItem = mediaItems.get(position);
+                vv_video_player.setVideoPath(mediaItem.getData());
+                tv_video_display_name.setText(mediaItem.getDisplayName());
+            }
+        } else if (uri != null) {
+            Toast.makeText(this, "后面已经没有了", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * @param
+     * @return void
+     * @description 上一个视频
+     * @author louiemain
+     * @date Created on 2018/3/17 11:42
+     */
+    private void preVideoHandle() {
+        if (mediaItems != null && mediaItems.size() > 0) {
+            position--;
+            if (position < 0) {
+                position = 0;
+                Toast.makeText(this, "前面已经没有了", Toast.LENGTH_SHORT).show();
+            } else {
+                MediaItem mediaItem = mediaItems.get(position);
+                vv_video_player.setVideoPath(mediaItem.getData());
+                tv_video_display_name.setText(mediaItem.getDisplayName());
+            }
+        } else if (uri != null) {
+            Toast.makeText(this, "前面已经没有了", Toast.LENGTH_SHORT).show();
         }
     }
 }
