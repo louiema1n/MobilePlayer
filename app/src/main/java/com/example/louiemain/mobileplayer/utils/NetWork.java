@@ -4,7 +4,18 @@ package com.example.louiemain.mobileplayer.utils;/**
  */
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.TrafficStats;
+import android.os.Handler;
+import android.view.View;
+import android.widget.ImageView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * @Pragram: MobilePlayer
@@ -35,11 +46,11 @@ public class NetWork {
     }
 
     /**
+     * @param context
+     * @return java.lang.String
      * @description 根据上下文获取某一时间段内的网速
      * @author louiemain
      * @date Created on 2018/3/18 9:49
-     * @param context
-     * @return java.lang.String
      */
     public String getNetSpeed(Context context) {
         String netSpeed = "0 kb/s";
@@ -55,5 +66,56 @@ public class NetWork {
 
         netSpeed = String.valueOf(speed) + " kb/s";
         return netSpeed;
+    }
+
+    /**
+     * @description 在子线程中绑定视图
+     * @author louiemain
+     * @date Created on 2018/3/18 20:05
+     * @param null
+     * @return
+     */
+    private Bitmap bitmap;
+
+    public void setBitmap(Bitmap bitmap) {
+        this.bitmap = bitmap;
+    }
+
+    public Bitmap getBitmap() {
+        return bitmap;
+    }
+
+    public void bindViewAndResource(View view, String url) {
+        final String str = url;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                URL bmpUrl = null;
+                try {
+                    bmpUrl = new URL(str);
+                    HttpURLConnection conn = (HttpURLConnection) bmpUrl.openConnection();
+                    conn.setConnectTimeout(3000);
+                    conn.setReadTimeout(3000);
+                    conn.setDoInput(true);
+
+                    InputStream is = conn.getInputStream();
+                    setBitmap(BitmapFactory.decodeStream(is));
+                    is.close();
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+        try {
+            thread.join();
+            ImageView iv = (ImageView) view;
+            iv.setImageBitmap(getBitmap());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }

@@ -1,5 +1,7 @@
 package com.example.louiemain.mobileplayer.domain;
 
+import android.graphics.Bitmap;
+
 import java.io.Serializable;
 
 /**
@@ -12,6 +14,24 @@ public class MediaItem implements Serializable {
     private long size;
     private String data;
     private String artist;
+    private String coverImg;
+    private String desc;
+
+    public String getCoverImg() {
+        return coverImg;
+    }
+
+    public void setCoverImg(String coverImg) {
+        this.coverImg = coverImg;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
 
     public String getDisplayName() {
         return displayName;
