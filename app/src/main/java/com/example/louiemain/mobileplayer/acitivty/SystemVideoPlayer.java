@@ -36,6 +36,8 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
     private static final int PROGRESS = 1;
     // 隐藏控制面板
     private static final int HIDE_MEDIA_CONTROLLER = 2;
+    // 显示网速
+    private static final int SHOW_NET_SPEED = 3;
     private VideoViewSelf vv_video_player;
     private Button btn_volume;
     private Button btn_switch_player;
@@ -92,6 +94,16 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
                     showHideMediaControllerHandle();
                     break;
 
+                case SHOW_NET_SPEED:    // 显示网速
+                    // 获取网速
+                    String netSpeed = netWork.getNetSpeed(SystemVideoPlayer.this);
+                    // 设置网速显示
+                    tv_buffer_network.setText("视频缓冲中... " + netSpeed);
+                    tv_loading_network.setText("网络资源加载中... " + netSpeed);
+
+                    // 每2秒执行1次
+                    handler.removeMessages(SHOW_NET_SPEED);
+                    handler.sendEmptyMessageDelayed(SHOW_NET_SPEED, 2000);
             }
         }
     };
@@ -126,10 +138,14 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
      * 是否为网络资源
      */
     private boolean isNetworkResources;
-    private TextView buffer_network;
+    private TextView tv_buffer_network;
+    private TextView tv_loading_network;
 
+    // 视频缓冲提示
     private LinearLayout ll_buffer_loading;
 
+    // 视频加载提示
+    private LinearLayout ll_resource_loading;
     /**
      * @param
      * @Description: 获取当前系统时间
@@ -270,8 +286,10 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
         media_controller = (RelativeLayout) findViewById(R.id.media_controller);
         sb_volume = (SeekBar) findViewById(R.id.sb_volume);
 
-        buffer_network = (TextView) findViewById(R.id.buffer_network);
+        tv_buffer_network = (TextView) findViewById(R.id.tv_buffer_network);
+        tv_loading_network = (TextView) findViewById(R.id.tv_loading_network);
         ll_buffer_loading = (LinearLayout) findViewById(R.id.ll_buffer_loading);
+        ll_resource_loading = (LinearLayout) findViewById(R.id.ll_resource_loading);
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             /**
@@ -320,6 +338,9 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             }
         });
 
+        // 发送显示网速消息
+        handler.sendEmptyMessage(SHOW_NET_SPEED);
+
         // 实例化AudioManager
         audioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
         // 获取最大音量(AudioManager.STREAM_MUSIC-媒体音量)
@@ -332,6 +353,10 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             @Override
             public void onPrepared(MediaPlayer mp) {
                 vv_video_player.start();    // 开始播放
+
+                // 隐藏视频加载提示
+                ll_resource_loading.setVisibility(View.GONE);
+
                 // 1.获取视频总时长
                 int duration = vv_video_player.getDuration();
                 // 2.设置seekbar的总大小
@@ -479,7 +504,7 @@ public class SystemVideoPlayer extends Activity implements View.OnClickListener 
             }
         });
 
-        buffer_network.setOnClickListener(this);
+        tv_buffer_network.setOnClickListener(this);
     }
 
     /**

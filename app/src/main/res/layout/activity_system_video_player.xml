@@ -13,11 +13,15 @@
 
     <include
             layout="@layout/media_controller_self"
-            android:id="@+id/media_controller"/>
+            android:id="@+id/media_controller"
+            android:visibility="gone"/>
 
     <include
             layout="@layout/buffer_loading"
             android:id="@+id/ll_buffer_loading"
             android:visibility="gone"/>
+    <include layout="@layout/resource_loading"
+             android:id="@+id/ll_resource_loading"
+             android:visibility="visible"/>
 
 </RelativeLayout>

@@ -1,7 +1,9 @@
 package com.example.louiemain.mobileplayer.acitivty;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.*;
@@ -164,5 +166,13 @@ public class MainActivity extends FragmentActivity {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
             }, 1);
         }
+    }
+
+    public void test(View view) {
+        Intent intent = new Intent();
+//        intent.setDataAndType(Uri.parse("http://192.168.1.103:8080/test.mp4"), "video/*");
+        intent.setDataAndType(Uri.parse("http://vfx.mtime.cn/Video/2018/03/14/mp4/180314004557773986.mp4"), "video/*");
+
+        startActivity(intent);
     }
 }

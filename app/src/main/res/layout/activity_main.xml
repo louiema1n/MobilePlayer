@@ -27,6 +27,9 @@
                      android:id="@+id/rb_video"
                      style="@style/BottomText"/>
         <RadioButton android:text="@string/bottom_music_text"
+
+                     android:onClick="test"
+
                      android:drawableTop="@drawable/rb_music_drawable_selector"
                      android:id="@+id/rb_music"
                      style="@style/BottomText"/>
