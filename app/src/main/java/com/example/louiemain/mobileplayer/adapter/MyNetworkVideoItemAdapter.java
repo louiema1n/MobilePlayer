@@ -73,8 +73,6 @@ public class MyNetworkVideoItemAdapter extends BaseAdapter {
         viewHolder.tv_net_video_name.setText(mediaItem.getDisplayName());
         viewHolder.tv_desc.setText(mediaItem.getDesc());
 
-        Log.i("test", mediaItem.getDisplayName()+ " " + mediaItem.getCoverImg());
-
         return convertView;
     }
 
