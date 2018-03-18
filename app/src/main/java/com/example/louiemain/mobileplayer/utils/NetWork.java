@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.TrafficStats;
 import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -76,17 +77,24 @@ public class NetWork {
      * @return
      */
     private Bitmap bitmap;
-
     public void setBitmap(Bitmap bitmap) {
         this.bitmap = bitmap;
     }
-
     public Bitmap getBitmap() {
         return bitmap;
     }
+    private ImageView iv;
 
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            iv.setImageBitmap(getBitmap());
+        }
+    };
     public void bindViewAndResource(View view, String url) {
         final String str = url;
+        iv = (ImageView) view;
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -101,6 +109,8 @@ public class NetWork {
                     InputStream is = conn.getInputStream();
                     setBitmap(BitmapFactory.decodeStream(is));
                     is.close();
+
+                    handler.sendEmptyMessage(0);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -109,13 +119,6 @@ public class NetWork {
             }
         });
         thread.start();
-        try {
-            thread.join();
-            ImageView iv = (ImageView) view;
-            iv.setImageBitmap(getBitmap());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
     }
 }

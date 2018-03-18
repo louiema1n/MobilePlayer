@@ -1,10 +1,6 @@
 package com.example.louiemain.mobileplayer.adapter;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,11 +12,6 @@ import com.example.louiemain.mobileplayer.domain.MediaItem;
 import com.example.louiemain.mobileplayer.utils.NetWork;
 import com.example.louiemain.mobileplayer.utils.Time;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 
 /**
